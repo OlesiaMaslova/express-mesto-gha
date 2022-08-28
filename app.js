@@ -25,8 +25,6 @@ async function main() {
   });
 
   await app.listen(PORT);
-
-  console.log(`Сервер на ${PORT} порте`);
 }
 
 main();
