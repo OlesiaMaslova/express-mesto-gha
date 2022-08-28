@@ -1,5 +1,7 @@
 const User = require('../models/user');
-const { OK, ERR_NOT_FOUND, ERR_BAD_REQUEST, ERR_SERVER_ERROR } = require('./utils');
+const {
+  OK, ERR_NOT_FOUND, ERR_BAD_REQUEST, ERR_SERVER_ERROR,
+} = require('./utils');
 
 async function getUsers(req, res) {
   try {
@@ -11,18 +13,19 @@ async function getUsers(req, res) {
 }
 
 async function getUserById(req, res) {
+  let user;
   try {
-    const user = await User.findById(req.user._id);
+    user = await User.findById(req.user._id);
     if (!req.user._id) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Такого пользователя не существует' });
     }
-    res.status(OK).send(user);
   } catch (err) {
     if (err.kind === 'ObjectId') {
       return res.status(ERR_BAD_REQUEST).send({ message: 'Невалидный ID пользователя' });
     }
     res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
   }
+  return res.status(OK).send(user);
 }
 
 async function createUser(req, res) {
@@ -40,36 +43,38 @@ async function createUser(req, res) {
 
 async function updateUser(req, res) {
   const { name, about } = req.body;
+  let user;
   try {
-    const user = await User.findByIdAndUpdate(req.user._id, { name, about });
+    user = await User.findByIdAndUpdate(req.user._id, { name, about });
     if (!req.user._id) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Такого пользователя не существует' });
     }
-    res.status(OK).send(user);
   } catch (err) {
     if (err.errors.name.name || err.errors.about.name === 'ValidatorError') {
       return res.status(ERR_BAD_REQUEST).send({ message: 'Некорректные данные пользователя' });
     }
     res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
   }
+  return res.status(OK).send(user);
 }
 
 async function updateUserAvatar(req, res) {
+  let user;
   try {
-    const user = await User.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar }, {
+    user = await User.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar }, {
       new: true,
       runValidators: true,
     });
     if (!req.body.avatar) {
-      return res.status(ERR_BAD_REQUEST).send({ message: 'Введены некорректные данные' })
+      return res.status(ERR_BAD_REQUEST).send({ message: 'Введены некорректные данные' });
     }
     if (!req.user._id) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Такого пользователя не существует' });
     }
-    res.status(OK).send(user);
   } catch (err) {
     return res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
   }
+  return res.status(OK).send(user);
 }
 
 module.exports = {

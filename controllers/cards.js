@@ -1,5 +1,7 @@
 const Card = require('../models/card');
-const { OK, ERR_NOT_FOUND, ERR_BAD_REQUEST, ERR_SERVER_ERROR } = require('./utils');
+const {
+  OK, ERR_NOT_FOUND, ERR_BAD_REQUEST, ERR_SERVER_ERROR,
+} = require('./utils');
 
 async function getCards(req, res) {
   try {
@@ -32,15 +34,16 @@ async function deleteCard(req, res) {
     if (!cardId) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
     }
-    res.status(OK).send({ message: 'Карточка удалена' });
   } catch (err) {
     res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
   }
+  return res.status(OK).send({ message: 'Карточка удалена' });
 }
 
 async function likeCard(req, res) {
+  let card;
   try {
-    const card = await Card.findByIdAndUpdate(
+    card = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
       { new: true },
@@ -48,15 +51,16 @@ async function likeCard(req, res) {
     if (!req.params.cardId) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
     }
-    res.status(OK).send(card.likes);
   } catch (err) {
     res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
   }
+  return res.status(OK).send(card.likes);
 }
 
 async function dislikeCard(req, res) {
+  let card;
   try {
-    const card = await Card.findByIdAndUpdate(
+    card = await Card.findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
       { new: true },
@@ -64,10 +68,10 @@ async function dislikeCard(req, res) {
     if (!req.params.cardId) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
     }
-    res.status(OK).send(card.likes);
   } catch (err) {
     res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
   }
+  return res.status(OK).send(card.likes);
 }
 
 module.exports = {
