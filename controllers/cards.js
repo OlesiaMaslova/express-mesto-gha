@@ -52,9 +52,12 @@ async function likeCard(req, res) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
     }
   } catch (err) {
+    if (err.name === 'CastError') {
+      return res.status(ERR_BAD_REQUEST).send({ message: 'Некорректный запрос' });
+    }
     res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
   }
-  return res.status(OK).send(card.likes);
+  return res.status(OK).send(card);
 }
 
 async function dislikeCard(req, res) {

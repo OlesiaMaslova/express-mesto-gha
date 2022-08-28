@@ -20,7 +20,7 @@ async function getUserById(req, res) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Такого пользователя не существует' });
     }
   } catch (err) {
-    if (err.kind === 'ObjectId') {
+    if (err.name === 'CastError') {
       return res.status(ERR_BAD_REQUEST).send({ message: 'Невалидный ID пользователя' });
     }
     res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
@@ -45,8 +45,11 @@ async function updateUser(req, res) {
   const { name, about } = req.body;
   let user;
   try {
-    user = await User.findByIdAndUpdate(req.params.userId, { name, about });
-    if (!req.params.userId) {
+    user = await User.findByIdAndUpdate(req.user._id, { name, about }, {
+      new: true,
+      runValidators: true,
+    });
+    if (!req.user._id) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Такого пользователя не существует' });
     }
   } catch (err) {
