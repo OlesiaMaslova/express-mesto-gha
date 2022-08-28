@@ -48,7 +48,7 @@ async function likeCard(req, res) {
       { $addToSet: { likes: req.user._id } },
       { new: true },
     );
-    if (!req.params.cardId) {
+    if (!card) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
     }
   } catch (err) {
@@ -57,7 +57,7 @@ async function likeCard(req, res) {
     }
     res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
   }
-  return res.status(OK).send(card);
+  return res.status(OK).send(card.likes);
 }
 
 async function dislikeCard(req, res) {
@@ -68,10 +68,13 @@ async function dislikeCard(req, res) {
       { $pull: { likes: req.user._id } },
       { new: true },
     );
-    if (!req.params.cardId) {
+    if (!card) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
     }
   } catch (err) {
+    if (err.name === 'CastError') {
+      return res.status(ERR_BAD_REQUEST).send({ message: 'Некорректный запрос' });
+    }
     res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
   }
   return res.status(OK).send(card.likes);

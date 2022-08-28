@@ -16,7 +16,7 @@ async function getUserById(req, res) {
   let user;
   try {
     user = await User.findById(req.params.userId);
-    if (!req.params.userId) {
+    if (!user) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Такого пользователя не существует' });
     }
   } catch (err) {
