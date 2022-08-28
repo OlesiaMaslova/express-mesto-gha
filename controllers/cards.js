@@ -30,11 +30,14 @@ async function createCard(req, res) {
 async function deleteCard(req, res) {
   const { cardId } = req.params;
   try {
-    await Card.findByIdAndRemove(cardId);
-    if (!cardId) {
+    const card = await Card.findByIdAndRemove(cardId);
+    if (!card) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
     }
   } catch (err) {
+    if (err.name === 'CastError') {
+      res.status(ERR_BAD_REQUEST).send({ message: 'Некорректный запрос' });
+    }
     res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
   }
   return res.status(OK).send({ message: 'Карточка удалена' });
