@@ -1,7 +1,7 @@
 const User = require('../models/user');
 const {
   OK, ERR_NOT_FOUND, ERR_BAD_REQUEST, ERR_SERVER_ERROR,
-} = require('./utils');
+} = require('../utils');
 
 async function getUsers(req, res) {
   try {
