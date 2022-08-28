@@ -33,7 +33,7 @@ async function createUser(req, res) {
     const user = await new User(req.body).save();
     res.status(OK).send(user);
   } catch (err) {
-    if (err.errors.name.name || err.errors.about.name || err.errors.avatar.name === 'ValidatorError') {
+    if (err.name === 'ValidationError') {
       res.status(ERR_BAD_REQUEST).send({ message: 'Некорректные данные пользователя' });
       return;
     }
