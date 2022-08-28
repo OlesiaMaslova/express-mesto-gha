@@ -15,8 +15,8 @@ async function getUsers(req, res) {
 async function getUserById(req, res) {
   let user;
   try {
-    user = await User.findById(req.user._id);
-    if (!req.user._id) {
+    user = await User.findById(req.params.userId);
+    if (!req.params.userId) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Такого пользователя не существует' });
     }
   } catch (err) {
@@ -45,12 +45,12 @@ async function updateUser(req, res) {
   const { name, about } = req.body;
   let user;
   try {
-    user = await User.findByIdAndUpdate(req.user._id, { name, about });
-    if (!req.user._id) {
+    user = await User.findByIdAndUpdate(req.params.userId, { name, about });
+    if (!req.params.userId) {
       return res.status(ERR_NOT_FOUND).send({ message: 'Такого пользователя не существует' });
     }
   } catch (err) {
-    if (err.errors.name.name || err.errors.about.name === 'ValidatorError') {
+    if (err.name === 'ValidationError') {
       return res.status(ERR_BAD_REQUEST).send({ message: 'Некорректные данные пользователя' });
     }
     res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
