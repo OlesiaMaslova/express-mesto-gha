@@ -10,11 +10,6 @@ const { PORT = 3000 } = process.env;
 const app = express();
 app.use(bodyParser.json());
 
-app.use('/404', (req, res, next) => {
-  res.status(ERR_NOT_FOUND).send({ message: 'Запрашиваемая страница не найдена' });
-  next();
-});
-
 app.use((req, res, next) => {
   req.user = {
     _id: '6309610ef3128c02972ba531',
@@ -24,6 +19,10 @@ app.use((req, res, next) => {
 app.use('/', userRouter);
 
 app.use('/', cardRouter);
+
+app.get('*', (req, res) => {
+  res.status(ERR_NOT_FOUND).send({ message: 'Запрашиваемая страница не найдена' });
+});
 
 async function main() {
   await mongoose.connect('mongodb://localhost:27017/mestodb', {
