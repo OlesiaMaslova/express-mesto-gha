@@ -1,5 +1,5 @@
 const express = require('express');
-const CardValidator = require('../validators');
+const { CardValidator } = require('../validators');
 
 const cardRouter = express.Router();
 const {
