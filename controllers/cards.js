@@ -1,49 +1,52 @@
 const Card = require('../models/card');
-const {
-  OK, ERR_NOT_FOUND, ERR_BAD_REQUEST, ERR_SERVER_ERROR,
-} = require('../utils');
+const { OK } = require('../utils');
+const AccessDeniedError = require('../errors/AccessDeniedError');
+const BadRequestError = require('../errors/BadRequestError');
+const NotFoundError = require('../errors/NotFoundError');
 
-async function getCards(req, res) {
+async function getCards(req, res, next) {
   try {
     const cards = await Card.find({});
     res.status(OK).send(cards);
   } catch (err) {
-    res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
+    next(err);
   }
 }
 
-async function createCard(req, res) {
+async function createCard(req, res, next) {
   const { name, link } = req.body;
   const id = req.user._id;
   try {
     const card = await new Card({ name, link, owner: id }).save();
-    res.status(OK).send(card);
+    return res.status(OK).send(card);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      res.status(ERR_BAD_REQUEST).send({ message: 'Некорректные данные карточки' });
-      return;
+      return next(new BadRequestError('Некорректные данные карточки'));
     }
-    res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
+    return next(err);
   }
 }
 
-async function deleteCard(req, res) {
+async function deleteCard(req, res, next) {
   const { cardId } = req.params;
   try {
     const card = await Card.findByIdAndRemove(cardId);
     if (!card) {
-      return res.status(ERR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
+      return next(new NotFoundError('Карточка с указанным id не найдена'));
+    }
+    if (card.owner !== req.user._id) {
+      return next(new AccessDeniedError('Недостаточно прав у пользователя'));
     }
   } catch (err) {
     if (err.name === 'CastError') {
-      res.status(ERR_BAD_REQUEST).send({ message: 'Некорректный запрос' });
+      return next(new BadRequestError('Некорректный запрос'));
     }
-    res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
+    next(err);
   }
   return res.status(OK).send({ message: 'Карточка удалена' });
 }
 
-async function likeCard(req, res) {
+async function likeCard(req, res, next) {
   let card;
   try {
     card = await Card.findByIdAndUpdate(
@@ -52,18 +55,18 @@ async function likeCard(req, res) {
       { new: true },
     );
     if (!card) {
-      return res.status(ERR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
+      return next(new NotFoundError('Карточка с указанным id не найдена'));
     }
   } catch (err) {
     if (err.name === 'CastError') {
-      return res.status(ERR_BAD_REQUEST).send({ message: 'Некорректный запрос' });
+      return next(new BadRequestError('Некорректный запрос'));
     }
-    res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
+    next(err);
   }
   return res.status(OK).send(card.likes);
 }
 
-async function dislikeCard(req, res) {
+async function dislikeCard(req, res, next) {
   let card;
   try {
     card = await Card.findByIdAndUpdate(
@@ -72,13 +75,13 @@ async function dislikeCard(req, res) {
       { new: true },
     );
     if (!card) {
-      return res.status(ERR_NOT_FOUND).send({ message: 'Карточка с указанным id не найдена' });
+      return next(new NotFoundError('Карточка с указанным id не найдена'));
     }
   } catch (err) {
     if (err.name === 'CastError') {
-      return res.status(ERR_BAD_REQUEST).send({ message: 'Некорректный запрос' });
+      return next(new BadRequestError('Некорректный запрос'));
     }
-    res.status(ERR_SERVER_ERROR).send({ message: 'Ошибка на сервере' });
+    next(err);
   }
   return res.status(OK).send(card.likes);
 }
