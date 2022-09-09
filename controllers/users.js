@@ -47,7 +47,9 @@ async function createUser(req, res, next) {
     const user = await new User({
       name, about, avatar, email, password: hashedPassword,
     }).save();
-    return res.status(OK).send(user);
+    return res.status(OK).send({
+      name: user.name, about: user.about, avatar: user.avatar, email: user.email,
+    });
   } catch (err) {
     if (err.code === 11000) {
       return next(new DuplicatedValueError('Такой email уже зарегестрирован'));

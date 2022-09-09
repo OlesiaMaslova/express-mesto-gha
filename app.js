@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const { PORT, DB_ADDRESS } = require('./config');
-const { AuthorizationValidator, RegistrationValidator } = require('./validators');
+const {
+  AuthorizationValidator, RegistrationValidator, UserValidator, CardValidator,
+} = require('./validators');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { createUser, login } = require('./controllers/users');
@@ -16,8 +18,8 @@ app.use(bodyParser.json());
 app.post('/signin', AuthorizationValidator, login);
 app.post('/signup', RegistrationValidator, createUser);
 app.use(auth);
-app.use('/', userRouter);
-app.use('/', cardRouter);
+app.use('/', UserValidator, userRouter);
+app.use('/', CardValidator, cardRouter);
 
 app.get('*', (req, res, next) => {
   next(new NotFoundError('Запрашиваемая страница не найдена'));
