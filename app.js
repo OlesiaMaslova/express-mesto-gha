@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const { PORT, DB_ADDRESS } = require('./config');
 const {
-  AuthorizationValidator, RegistrationValidator, UserValidator, CardValidator,
+  AuthorizationValidator, RegistrationValidator,
 } = require('./validators');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
@@ -18,8 +18,8 @@ app.use(bodyParser.json());
 app.post('/signin', AuthorizationValidator, login);
 app.post('/signup', RegistrationValidator, createUser);
 app.use(auth);
-app.use('/', UserValidator, userRouter);
-app.use('/', CardValidator, cardRouter);
+app.use('/', userRouter);
+app.use('/', cardRouter);
 
 app.get('*', (req, res, next) => {
   next(new NotFoundError('Запрашиваемая страница не найдена'));
