@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -21,6 +22,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
+    validate: [validator.isEmail, 'Введите корректный email'],
   },
   password: {
     type: String,
@@ -30,7 +32,7 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.path('avatar').validate((val) => {
-  const urlRegex = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
+  const urlRegex = /((http|ftp|https):\/\/)?(([\w.-]*)\.([\w]*))/;
   return urlRegex.test(val);
 }, 'Invalid URL.');
 

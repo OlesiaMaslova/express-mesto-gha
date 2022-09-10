@@ -12,7 +12,8 @@ const cardSchema = new mongoose.Schema({
     required: true,
   },
   owner: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
     required: true,
   },
   likes: {
@@ -26,7 +27,7 @@ const cardSchema = new mongoose.Schema({
 });
 
 cardSchema.path('link').validate((val) => {
-  const urlRegex = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
+  const urlRegex = /((http|ftp|https):\/\/)?(([\w.-]*)\.([\w]*))/;
   return urlRegex.test(val);
 }, 'Invalid URL.');
 

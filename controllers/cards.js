@@ -30,17 +30,15 @@ async function createCard(req, res, next) {
 async function deleteCard(req, res, next) {
   const { cardId } = req.params;
   try {
-    const card = await Card.findByIdAndRemove(cardId);
+    const card = await Card.findById(cardId);
     if (!card) {
       return next(new NotFoundError('Карточка с указанным id не найдена'));
     }
-    if (card.owner !== req.user._id) {
+    if (!card.owner.equals(req.user._id)) {
       return next(new AccessDeniedError('Недостаточно прав у пользователя'));
     }
+    await card.remove();
   } catch (err) {
-    if (err.name === 'CastError') {
-      return next(new BadRequestError('Некорректный запрос'));
-    }
     next(err);
   }
   return res.status(OK).send({ message: 'Карточка удалена' });
@@ -58,9 +56,6 @@ async function likeCard(req, res, next) {
       return next(new NotFoundError('Карточка с указанным id не найдена'));
     }
   } catch (err) {
-    if (err.name === 'CastError') {
-      return next(new BadRequestError('Некорректный запрос'));
-    }
     next(err);
   }
   return res.status(OK).send(card.likes);
@@ -78,9 +73,6 @@ async function dislikeCard(req, res, next) {
       return next(new NotFoundError('Карточка с указанным id не найдена'));
     }
   } catch (err) {
-    if (err.name === 'CastError') {
-      return next(new BadRequestError('Некорректный запрос'));
-    }
     next(err);
   }
   return res.status(OK).send(card.likes);

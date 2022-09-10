@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { OK } = require('../utils');
 const { JWT_SECRET } = require('../config');
-const AccessDeniedError = require('../errors/AccessDeniedError');
 const AuthError = require('../errors/AuthError');
 const BadRequestError = require('../errors/BadRequestError');
 const DuplicatedValueError = require('../errors/DuplicatedValueError');
@@ -26,9 +25,6 @@ async function getUserById(req, res, next) {
       return next(new NotFoundError('Такого пользователя не существует'));
     }
   } catch (err) {
-    if (err.name === 'CastError') {
-      return next(new BadRequestError('Невалидный ID пользователя'));
-    }
     next(err);
   }
   return res.status(OK).send(user);
@@ -53,9 +49,6 @@ async function createUser(req, res, next) {
   } catch (err) {
     if (err.code === 11000) {
       return next(new DuplicatedValueError('Такой email уже зарегестрирован'));
-    }
-    if (err.name === 'ValidationError') {
-      return next(new BadRequestError('Некорректные данные пользователя'));
     }
     return next(err);
   }
@@ -86,7 +79,7 @@ async function getUserInfo(req, res, next) {
   try {
     const user = await User.findById(req.user._id);
     if (!user) {
-      return next(new AccessDeniedError('Нет доступа'));
+      return next(new NotFoundError('Нет запрашиваемой информации'));
     }
     return res.status(OK).send(user);
   } catch (err) {
@@ -102,13 +95,7 @@ async function updateUser(req, res, next) {
       new: true,
       runValidators: true,
     });
-    if (!req.user._id) {
-      return next(new AccessDeniedError('Нет доступа'));
-    }
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      return next(new BadRequestError('Некорректные данные пользователя'));
-    }
     next(err);
   }
   return res.status(OK).send(user);
@@ -121,13 +108,10 @@ async function updateUserAvatar(req, res, next) {
       new: true,
       runValidators: true,
     });
-    if (!req.body.avatar) {
-      return next(new BadRequestError('Введены некорректные данные'));
-    }
-    if (!req.user._id) {
-      return next(new AccessDeniedError('Нет доступа'));
-    }
   } catch (err) {
+    if (err.name === 'ValidationError') {
+      next(new BadRequestError('Ошибка валидации'));
+    }
     next(err);
   }
   return res.status(OK).send(user);
