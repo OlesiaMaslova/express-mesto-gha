@@ -26,9 +26,9 @@ const UserValidator = celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(regexp),
   }),
-  // [Segments.PARAMS]: Joi.object().keys({
-  //   _id: Joi.string().pattern(regexpId),
-  // }),
+  [Segments.PARAMS]: Joi.object().keys({
+    userId: Joi.string().pattern(regexpId),
+  }),
 });
 
 const CardValidator = celebrate({
@@ -41,7 +41,7 @@ const CardValidator = celebrate({
   }),
 });
 
-const CardLikeValidator = celebrate({
+const CardIdValidator = celebrate({
   [Segments.PARAMS]: Joi.object().keys({
     cardId: Joi.string().pattern(regexpId),
   }),
@@ -52,5 +52,5 @@ module.exports = {
   RegistrationValidator,
   UserValidator,
   CardValidator,
-  CardLikeValidator,
+  CardIdValidator,
 };

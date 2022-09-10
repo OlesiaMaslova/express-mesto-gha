@@ -1,5 +1,5 @@
 const express = require('express');
-const { CardValidator, CardLikeValidator } = require('../validators');
+const { CardValidator, CardIdValidator } = require('../validators');
 
 const cardRouter = express.Router();
 const {
@@ -8,8 +8,8 @@ const {
 
 cardRouter.get('/cards', getCards);
 cardRouter.post('/cards', CardValidator, createCard);
-cardRouter.delete('/cards/:cardId', deleteCard);
-cardRouter.put('/cards/:cardId/likes', CardLikeValidator, likeCard);
-cardRouter.delete('/cards/:cardId/likes', CardLikeValidator, dislikeCard);
+cardRouter.delete('/cards/:cardId', CardIdValidator, deleteCard);
+cardRouter.put('/cards/:cardId/likes', CardIdValidator, likeCard);
+cardRouter.delete('/cards/:cardId/likes', CardIdValidator, dislikeCard);
 
 module.exports = cardRouter;
