@@ -3,6 +3,7 @@ const {
 } = require('celebrate');
 
 const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/;
+const regexpId = /^[0-9a-fA-F]{24}$/;
 const AuthorizationValidator = celebrate({
   [Segments.BODY]: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -24,11 +25,10 @@ const UserValidator = celebrate({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(regexp),
-    _id: Joi.string().regex(/^[0-9a-fA-F]{24}$/),
   }),
-  [Segments.PARAMS]: Joi.object().keys({
-    _id: Joi.string().regex(/^[0-9a-fA-F]{24}$/),
-  }),
+  // [Segments.PARAMS]: Joi.object().keys({
+  //   _id: Joi.string().pattern(regexpId),
+  // }),
 });
 
 const CardValidator = celebrate({
@@ -37,7 +37,13 @@ const CardValidator = celebrate({
     link: Joi.string().required().pattern(regexp),
   }),
   [Segments.PARAMS]: Joi.object().keys({
-    _id: Joi.string().regex(/^[0-9a-fA-F]{24}$/),
+    cardId: Joi.string().pattern(regexpId),
+  }),
+});
+
+const CardLikeValidator = celebrate({
+  [Segments.PARAMS]: Joi.object().keys({
+    cardId: Joi.string().pattern(regexpId),
   }),
 });
 
@@ -46,4 +52,5 @@ module.exports = {
   RegistrationValidator,
   UserValidator,
   CardValidator,
+  CardLikeValidator,
 };
