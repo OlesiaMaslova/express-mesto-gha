@@ -20,7 +20,7 @@ app.use(auth);
 app.use('/', userRouter);
 app.use('/', cardRouter);
 
-app.get('*', (req, res) => {
+app.use('*', (req, res) => {
   res.status(404).send({ message: 'Запрашиваемая страница не найдена' });
 });
 
