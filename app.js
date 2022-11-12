@@ -1,15 +1,21 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const { PORT, DB_ADDRESS } = require('./config');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { router } = require('./routes');
 
 const app = express();
 app.use(bodyParser.json());
 
+app.use(requestLogger);
+app.use(cors());
 app.use(router);
+
+app.use(errorLogger);
 
 app.use(errors());
 

@@ -58,7 +58,7 @@ async function likeCard(req, res, next) {
   } catch (err) {
     next(err);
   }
-  return res.status(OK).send(card.likes);
+  return res.status(OK).send(card);
 }
 
 async function dislikeCard(req, res, next) {
@@ -75,7 +75,7 @@ async function dislikeCard(req, res, next) {
   } catch (err) {
     next(err);
   }
-  return res.status(OK).send(card.likes);
+  return res.status(OK).send(card);
 }
 
 module.exports = {
